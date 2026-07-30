@@ -30,7 +30,7 @@ Override the defaults with environment variables:
 
 ```bash
 BEDROCK_REGION=us-east-1 \
-BEDROCK_MODEL_ID=us.anthropic.claude-haiku-4-5-20251001-v1:0 \
+BEDROCK_MODEL_ID=us.anthropic.claude-sonnet-4-5-20250929-v1:0 \
   uv run converse.py "hello"
 ```
 
@@ -39,8 +39,8 @@ BEDROCK_MODEL_ID=us.anthropic.claude-haiku-4-5-20251001-v1:0 \
 Two things bite on a fresh account:
 
 **1. Use the geo-prefixed model ID.** Current Claude models are on-demand only
-through inference profiles. In `eu-west-3` that means `eu.anthropic.claude-sonnet-4-5-20250929-v1:0`,
-not the bare `anthropic.claude-sonnet-4-5-20250929-v1:0`. Check which IDs your
+through inference profiles. In `eu-west-3` that means `eu.anthropic.claude-haiku-4-5-20251001-v1:0`,
+not the bare `anthropic.claude-haiku-4-5-20251001-v1:0`. Check which IDs your
 Region exposes:
 
 ```bash
@@ -54,7 +54,7 @@ this account`. Diagnose it without guessing:
 
 ```bash
 aws bedrock get-foundation-model-availability \
-  --model-id anthropic.claude-sonnet-4-5-20250929-v1:0 --region eu-west-3
+  --model-id anthropic.claude-haiku-4-5-20251001-v1:0 --region eu-west-3
 ```
 
 `agreementAvailability.status: NOT_AVAILABLE` means the form is outstanding.
