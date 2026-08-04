@@ -1,12 +1,12 @@
 # bedrock-claude-lab
 
-Hands-on samples for calling Claude models on Amazon Bedrock from Python. Each
-script is standalone and runnable with a single command, no project setup step.
+Runnable samples for calling models on Amazon Bedrock from Python. Each script
+is standalone, no project setup step required.
 
 ## Why this exists
 
-Bedrock's docs default to API-key authentication, which is the wrong choice on a
-developer machine that already has AWS credentials. Everything here uses the
+Bedrock's docs default to API-key authentication, which is the wrong choice on
+a developer machine that already has AWS credentials. Everything here uses the
 normal credential chain (IAM Identity Center / SSO), so there is no long-lived
 secret anywhere in the repo or in your shell profile.
 
@@ -24,6 +24,8 @@ so `uv` resolves them on first run:
 ```bash
 uv run converse.py
 uv run converse.py "Explain Bedrock inference profiles in two sentences."
+
+uv run stream.py "count from 1 to 5, one number per line"
 ```
 
 Override the defaults with environment variables:
@@ -58,47 +60,22 @@ aws bedrock get-foundation-model-availability \
 ```
 
 `agreementAvailability.status: NOT_AVAILABLE` means the form is outstanding.
-Submit it under **Model access** in the [Bedrock console](https://console.aws.amazon.com/bedrock/home#/modelaccess),
-then allow ~15 minutes. `authorizationStatus`, `entitlementAvailability`, and
+Submit it from the model catalog in the Bedrock console, then allow ~15
+minutes. `authorizationStatus`, `entitlementAvailability`, and
 `regionAvailability` being fine is not sufficient on its own.
 
-## Roadmap
+## Cost
 
-Ordered so each step builds on the one before it.
-
-**Foundations**
-
-1. `converse.py` — single-turn Converse call ✅
-2. `stream.py` — `converse_stream`, incremental token output
-3. `chat.py` — multi-turn loop holding conversation history
-4. `config.py` — shared client factory, Region and model resolution, retry config
-
-**Model capabilities**
-
-5. `tools.py` — function calling via the `toolConfig` parameter
-6. `structured.py` — schema-constrained output, including the `bedrock-runtime`
-   vs `bedrock-mantle` difference on `output_config.format`
-7. `vision.py` — image input
-8. `caching.py` — prompt caching and its effect on cost and latency
-9. `thinking.py` — extended thinking, and reading the reasoning blocks back
-
-**Production concerns**
-
-10. `guardrails.py` — apply a Guardrail to a Converse call
-11. `observability.py` — CloudWatch metrics and model invocation logging
-12. `cost.py` — token accounting from the `usage` block, priced per model
-13. `errors.py` — throttling, retries with backoff, cross-Region fallback
-
-**Beyond single calls**
-
-14. `knowledge_base.py` — retrieval-augmented generation over a Knowledge Base
-15. `agentcore/` — a minimal agent on Bedrock AgentCore
-16. `infra/` — CDK stack provisioning the Guardrail, Knowledge Base, and IAM roles
+On-demand pricing is per token, billed separately for input and output. Every
+script prints token usage to stderr after each call. Set a budget alert before
+running anything at scale, from Billing → Budgets in the console or via
+`aws budgets create-budget`.
 
 ## Layout
 
 ```
-converse.py    minimal Converse call, with model-access diagnostics on failure
+converse.py    single-turn Converse call
+stream.py      ConverseStream call, printing text as it arrives
 README.md      this file
 ```
 
