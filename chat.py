@@ -14,16 +14,16 @@ REGION = os.environ.get("BEDROCK_REGION", "eu-west-3")
 MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "eu.anthropic.claude-haiku-4-5-20251001-v1:0")
 
 
-def chat_turn(client, history: list[dict], prompt: str) -> str:
-    history.append({"role": "user", "content": [{"text": prompt}]})
-    response = client.converse(
+def chat_turn(bedrock_client, messages: list[dict], user_prompt: str) -> str:
+    messages.append({"role": "user", "content": [{"text": user_prompt}]})
+    response = bedrock_client.converse(
         modelId=MODEL_ID,
-        messages=history,
+        messages=messages,
         inferenceConfig={"maxTokens": 512, "temperature": 0.3},
     )
-    reply = response["output"]["message"]
-    history.append(reply)
-    return reply["content"][0]["text"]
+    model_message = response["output"]["message"]
+    messages.append(model_message)
+    return model_message["content"][0]["text"]
 
 
 if __name__ == "__main__":
