@@ -14,16 +14,21 @@ REGION = os.environ.get("BEDROCK_REGION", "eu-west-3")
 MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "eu.anthropic.claude-haiku-4-5-20251001-v1:0")
 
 
-def chat_turn(bedrock_client, messages: list[dict], user_prompt: str) -> str:
+def chat_turn(bedrock_client, messages: list[dict], user_prompt: str) -> None:
     messages.append({"role": "user", "content": [{"text": user_prompt}]})
-    response = bedrock_client.converse(
+    response = bedrock_client.converse_stream(
         modelId=MODEL_ID,
         messages=messages,
         inferenceConfig={"maxTokens": 512, "temperature": 0.3},
     )
-    model_message = response["output"]["message"]
-    messages.append(model_message)
-    return model_message["content"][0]["text"]
+    reply_text = ""
+    for event in response["stream"]:
+        if "contentBlockDelta" in event:
+            delta = event["contentBlockDelta"]["delta"]["text"]
+            print(delta, end="", flush=True)
+            reply_text += delta
+    print()
+    messages.append({"role": "assistant", "content": [{"text": reply_text}]})
 
 
 if __name__ == "__main__":
@@ -38,8 +43,8 @@ if __name__ == "__main__":
                 break
             if not prompt or prompt.lower() == "exit":
                 break
-            reply = chat_turn(client, history, prompt)
-            print(f"model> {reply}\n")
+            print("model> ", end="")
+            chat_turn(client, history, prompt)
     except botocore.exceptions.ClientError as error:
         code = error.response["Error"]["Code"]
         print(f"{code}: {error.response['Error']['Message']}", file=sys.stderr)
