@@ -4,18 +4,15 @@
 # ///
 """Minimal Amazon Bedrock Converse call against Claude."""
 import json
-import os
 import sys
 
-import boto3
 import botocore.exceptions
 
-REGION = os.environ.get("BEDROCK_REGION", "eu-west-3")
-MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "eu.anthropic.claude-haiku-4-5-20251001-v1:0")
+from config import MODEL_ID, REGION, bedrock_client
 
 
 def ask(prompt: str) -> tuple[str, dict]:
-    client = boto3.client("bedrock-runtime", region_name=REGION)
+    client = bedrock_client()
     response = client.converse(
         modelId=MODEL_ID,
         messages=[{"role": "user", "content": [{"text": prompt}]}],
