@@ -12,6 +12,7 @@ MAX_ATTEMPTS = int(os.environ.get("BEDROCK_MAX_ATTEMPTS", "3"))
 
 
 def bedrock_client():
+    # noinspection PyTypeChecker
     return boto3.client(
         "bedrock-runtime",
         region_name=REGION,
