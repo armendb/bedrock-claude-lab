@@ -43,9 +43,11 @@ def run_tool(name: str, tool_input: dict) -> dict:
     raise ValueError(f"unknown tool: {name}")
 
 
-def ask_with_tools(prompt: str) -> str:
+def ask_with_tools(prompt: str) -> tuple[str, dict]:
     client = bedrock_client()
     messages = [{"role": "user", "content": [{"text": prompt}]}]
+    total_input_tokens = 0
+    total_output_tokens = 0
 
     while True:
         response = client.converse(
@@ -54,11 +56,18 @@ def ask_with_tools(prompt: str) -> str:
             toolConfig=TOOL_CONFIG,
             inferenceConfig={"maxTokens": 512, "temperature": 0.3},
         )
+        total_input_tokens += response["usage"]["inputTokens"]
+        total_output_tokens += response["usage"]["outputTokens"]
         output_message = response["output"]["message"]
         messages.append(output_message)
 
         if response["stopReason"] != "tool_use":
-            return output_message["content"][0]["text"]
+            token_usage = {
+                "inputTokens": total_input_tokens,
+                "outputTokens": total_output_tokens,
+                "totalTokens": total_input_tokens + total_output_tokens,
+            }
+            return output_message["content"][0]["text"], token_usage
 
         tool_results = []
         for block in output_message["content"]:
@@ -85,7 +94,13 @@ if __name__ == "__main__":
     user_prompt = " ".join(sys.argv[1:]) or "What's the weather like in Paris?"
     print(f"[{MODEL_ID} @ {REGION}]\n")
     try:
-        print(ask_with_tools(user_prompt))
+        answer, usage = ask_with_tools(user_prompt)
+        print(answer)
+        print(
+            f"\ntokens: {usage['inputTokens']} in, {usage['outputTokens']} out"
+            f" ({usage['totalTokens']} total)",
+            file=sys.stderr,
+        )
     except botocore.exceptions.ClientError as error:
         code = error.response["Error"]["Code"]
         print(f"{code}: {error.response['Error']['Message']}", file=sys.stderr)
