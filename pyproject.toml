@@ -7,3 +7,6 @@ dependencies = [
     "boto3-stubs~=1.42.97",
     "botocore>=1.42.97",
 ]
+
+[dependency-groups]
+dev = ["pytest>=8"]

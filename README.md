@@ -27,12 +27,11 @@ uv run converse.py "Explain Bedrock inference profiles in two sentences."
 uv run stream.py "count from 1 to 5, one number per line"
 ```
 
-Override the defaults with environment variables:
+Override the defaults with environment variables (see `.env.example`):
 
 ```bash
 BEDROCK_REGION=us-east-1 \
 BEDROCK_MODEL_ID=us.anthropic.claude-sonnet-4-5-20250929-v1:0 \
-
   uv run converse.py "hello"
 ```
 
@@ -68,11 +67,21 @@ On-demand pricing is per token, billed separately for input and output. Every sc
 each call. Set a budget alert before running anything at scale, from Billing → Budgets in the console or via
 `aws budgets create-budget`.
 
+## Tests
+
+```bash
+uv run --with pytest pytest
+```
+
 ## Layout
 
 ```
+config.py      shared client factory, region/model resolution, retry config
 converse.py    single-turn Converse call
 stream.py      ConverseStream call, printing text as it arrives
+chat.py        interactive multi-turn chat, holding history, streamed
+tools.py       function calling via toolConfig
+test_tools.py  unit tests for the tool-call loop, against a mocked client
 README.md      this file
 ```
 
