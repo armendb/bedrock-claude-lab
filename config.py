@@ -11,10 +11,10 @@ MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "eu.anthropic.claude-haiku-4-5-202
 MAX_ATTEMPTS = int(os.environ.get("BEDROCK_MAX_ATTEMPTS", "3"))
 
 
-def bedrock_client():
+def bedrock_client(region: str = REGION):
     # noinspection PyTypeChecker
     return boto3.client(
         "bedrock-runtime",
-        region_name=REGION,
+        region_name=region,
         config=Config(retries={"max_attempts": MAX_ATTEMPTS, "mode": "standard"}),
     )
