@@ -76,13 +76,20 @@ uv run --with pytest pytest
 ## Layout
 
 ```
-config.py      shared client factory, region/model resolution, retry config
-converse.py    single-turn Converse call
-stream.py      ConverseStream call, printing text as it arrives
-chat.py        interactive multi-turn chat, holding history, streamed
-tools.py       function calling via toolConfig
-test_tools.py  unit tests for the tool-call loop, against a mocked client
-README.md      this file
+config.py         shared client factory, region/model resolution, retry config
+converse.py       single-turn Converse call
+stream.py         ConverseStream call, printing text as it arrives
+chat.py           interactive multi-turn chat, holding history, streamed
+tools.py          function calling via toolConfig
+structured.py     schema-constrained output via a forced strict tool call
+caching.py        prompt caching, cache write vs cache read
+thinking.py       extended thinking, reasoning trace plus answer
+vision.py         image input alongside a text prompt
+errors.py         cross-Region fallback after retries run out
+cost.py           per-call cost from all four billed token types
+observability.py  CloudWatch usage metrics, invocation logging status
+guardrails.py     apply a Guardrail to a Converse call
+test_*.py         unit tests against mocked clients
 ```
 
 ## License
